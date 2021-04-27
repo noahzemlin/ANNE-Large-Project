@@ -56,11 +56,6 @@ def main():
     logging.info("Making Window")
     sc, window = create_window(world.width, world.height)
 
-    logging.info("Making Agents")
-    agent1 = Agent(8 * 3 + 1, [32, 32], 8 * 2 + 1)
-
-    world.put_agent(agent1, 2, world.height//3 * 2)
-
     logging.info("Creating Threads")
     sim_thread = SimulationThread(world)
     render_thread = RenderThread(window, world)

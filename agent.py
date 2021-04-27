@@ -22,11 +22,18 @@ class Agent:
                     np.random.normal(0, 0.4, (hidden_layers[i], output))
                     ))
 
+        if len(hidden_layers) == 0:
+            self.network.append(np.array(
+                    np.random.normal(0, 0.4, (inputs, output))
+                    ))
+
     def predict(self, input: np.ndarray) -> np.ndarray:
 
         for layer in self.network:
             input = 1 / (1 + np.exp(-np.matmul(input, layer))) # Multiply each layer with sigmoid activation
 
-        # TODO: softmax on output
+        # Softmax (yes its applied after a sigmoid but w/e)
+        e = np.exp(input)
+        input = e / e.sum()
 
         return input

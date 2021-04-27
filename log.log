@@ -1,7 +1,151 @@
-INFO 23:21:25: Loading World
-INFO 23:21:25: Making Window
-INFO 23:21:25: Making Agents
-INFO 23:21:25: Creating Threads
-INFO 23:21:25: Starting Threads
-INFO 23:21:28: Render Thread Complete
-INFO 23:21:28: Simulation Thread Complete
+INFO 02:13:06: Loading World
+INFO 02:13:06: Making Window
+INFO 02:13:06: Creating Threads
+INFO 02:13:06: Starting Threads
+INFO 02:13:06: Making Agents
+INFO 02:13:07: Gen 0 Best: 0.83, Median: 0.00, Worst: 0.00
+INFO 02:13:07: Gen 1 Best: 1.56, Median: 0.00, Worst: 0.00
+INFO 02:13:08: Gen 2 Best: 1.56, Median: 0.00, Worst: 0.00
+INFO 02:13:08: Gen 3 Best: 1.56, Median: 0.00, Worst: 0.00
+INFO 02:13:09: Gen 4 Best: 1.56, Median: 0.00, Worst: 0.00
+INFO 02:13:09: Gen 5 Best: 1.56, Median: 0.00, Worst: 0.00
+INFO 02:13:10: Gen 6 Best: 1.56, Median: 0.00, Worst: 0.00
+INFO 02:13:10: Gen 7 Best: 1.56, Median: 0.01, Worst: 0.00
+INFO 02:13:11: Gen 8 Best: 1.56, Median: 0.01, Worst: 0.00
+INFO 02:13:11: Gen 9 Best: 1.56, Median: 0.01, Worst: 0.00
+INFO 02:13:12: Gen 10 Best: 1.56, Median: 0.04, Worst: 0.00
+INFO 02:13:12: Gen 11 Best: 1.56, Median: 0.04, Worst: 0.00
+INFO 02:13:13: Gen 12 Best: 1.56, Median: 0.05, Worst: 0.00
+INFO 02:13:13: Gen 13 Best: 1.56, Median: 0.05, Worst: 0.00
+INFO 02:13:14: Gen 14 Best: 1.56, Median: 0.05, Worst: 0.00
+INFO 02:13:14: Gen 15 Best: 1.56, Median: 0.05, Worst: 0.00
+INFO 02:13:15: Gen 16 Best: 1.56, Median: 0.05, Worst: 0.00
+INFO 02:13:15: Gen 17 Best: 1.66, Median: 0.05, Worst: 0.00
+INFO 02:13:16: Gen 18 Best: 1.66, Median: 0.05, Worst: 0.00
+INFO 02:13:16: Gen 19 Best: 1.66, Median: 0.05, Worst: 0.00
+INFO 02:13:17: Gen 20 Best: 1.66, Median: 0.05, Worst: 0.04
+INFO 02:13:17: Gen 21 Best: 1.66, Median: 0.06, Worst: 0.01
+INFO 02:13:18: Gen 22 Best: 1.96, Median: 0.06, Worst: 0.00
+INFO 02:13:18: Gen 23 Best: 1.96, Median: 0.06, Worst: 0.00
+INFO 02:13:19: Gen 24 Best: 1.96, Median: 0.10, Worst: 0.00
+INFO 02:13:19: Gen 25 Best: 1.96, Median: 0.10, Worst: 0.00
+INFO 02:13:20: Gen 26 Best: 1.96, Median: 0.10, Worst: 0.00
+INFO 02:13:20: Gen 27 Best: 1.96, Median: 0.10, Worst: 0.01
+INFO 02:13:21: Gen 28 Best: 1.96, Median: 0.11, Worst: 0.00
+INFO 02:13:21: Gen 29 Best: 1.96, Median: 0.41, Worst: 0.00
+INFO 02:13:22: Gen 30 Best: 1.96, Median: 0.47, Worst: 0.00
+INFO 02:13:22: Gen 31 Best: 1.96, Median: 0.47, Worst: 0.05
+INFO 02:13:23: Gen 32 Best: 1.96, Median: 0.47, Worst: 0.00
+INFO 02:13:23: Gen 33 Best: 1.96, Median: 0.50, Worst: 0.00
+INFO 02:13:24: Gen 34 Best: 1.96, Median: 0.55, Worst: 0.01
+INFO 02:13:24: Gen 35 Best: 1.96, Median: 0.60, Worst: 0.00
+INFO 02:13:25: Gen 36 Best: 1.96, Median: 0.64, Worst: 0.01
+INFO 02:13:25: Gen 37 Best: 1.96, Median: 0.78, Worst: 0.01
+INFO 02:13:26: Gen 38 Best: 1.96, Median: 0.83, Worst: 0.01
+INFO 02:13:26: Gen 39 Best: 1.96, Median: 0.83, Worst: 0.00
+INFO 02:13:27: Gen 40 Best: 1.96, Median: 0.87, Worst: 0.02
+INFO 02:13:27: Gen 41 Best: 1.96, Median: 0.87, Worst: 0.01
+INFO 02:13:28: Gen 42 Best: 1.96, Median: 0.88, Worst: 0.01
+INFO 02:13:28: Gen 43 Best: 1.96, Median: 1.06, Worst: 0.00
+INFO 02:13:29: Gen 44 Best: 1.96, Median: 1.41, Worst: 0.01
+INFO 02:13:29: Gen 45 Best: 1.96, Median: 1.41, Worst: 0.00
+INFO 02:13:30: Gen 46 Best: 1.96, Median: 1.51, Worst: 0.00
+INFO 02:13:30: Gen 47 Best: 1.96, Median: 1.51, Worst: 0.00
+INFO 02:13:31: Gen 48 Best: 1.96, Median: 1.51, Worst: 0.00
+INFO 02:13:32: Gen 49 Best: 1.96, Median: 1.51, Worst: 0.01
+INFO 02:13:32: Gen 50 Best: 1.96, Median: 1.51, Worst: 0.00
+INFO 02:13:33: Gen 51 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:33: Gen 52 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:34: Gen 53 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:34: Gen 54 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:35: Gen 55 Best: 1.96, Median: 1.56, Worst: 0.05
+INFO 02:13:35: Gen 56 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:36: Gen 57 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:37: Gen 58 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:37: Gen 59 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:38: Gen 60 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:38: Gen 61 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:39: Gen 62 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:39: Gen 63 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:40: Gen 64 Best: 1.96, Median: 1.56, Worst: 0.01
+INFO 02:13:40: Gen 65 Best: 1.96, Median: 1.56, Worst: 0.01
+INFO 02:13:41: Gen 66 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:41: Gen 67 Best: 1.96, Median: 1.56, Worst: 0.00
+INFO 02:13:42: Gen 68 Best: 1.96, Median: 1.61, Worst: 0.00
+INFO 02:13:43: Gen 69 Best: 1.96, Median: 1.66, Worst: 0.05
+INFO 02:13:43: Gen 70 Best: 1.96, Median: 1.66, Worst: 0.00
+INFO 02:13:44: Grabbed object!
+INFO 02:13:44: Gen 71 Best: 2.39, Median: 1.66, Worst: 0.01
+INFO 02:13:44: Grabbed object!
+INFO 02:13:44: Gen 72 Best: 2.39, Median: 1.66, Worst: 0.00
+INFO 02:13:44: Grabbed object!
+INFO 02:13:45: Gen 73 Best: 2.39, Median: 1.66, Worst: 0.00
+INFO 02:13:45: Grabbed object!
+INFO 02:13:45: Gen 74 Best: 2.39, Median: 1.66, Worst: 0.00
+INFO 02:13:45: Grabbed object!
+INFO 02:13:46: Gen 75 Best: 2.39, Median: 1.66, Worst: 0.01
+INFO 02:13:46: Grabbed object!
+INFO 02:13:46: Gen 76 Best: 2.39, Median: 1.66, Worst: 0.00
+INFO 02:13:46: Grabbed object!
+INFO 02:13:47: Gen 77 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:47: Grabbed object!
+INFO 02:13:47: Gen 78 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:47: Grabbed object!
+INFO 02:13:48: Gen 79 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:48: Grabbed object!
+INFO 02:13:48: Gen 80 Best: 2.39, Median: 1.71, Worst: 0.05
+INFO 02:13:48: Grabbed object!
+INFO 02:13:49: Gen 81 Best: 2.39, Median: 1.71, Worst: 0.01
+INFO 02:13:49: Grabbed object!
+INFO 02:13:49: Gen 82 Best: 2.39, Median: 1.71, Worst: 0.05
+INFO 02:13:49: Grabbed object!
+INFO 02:13:50: Gen 83 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:50: Grabbed object!
+INFO 02:13:51: Gen 84 Best: 2.39, Median: 1.71, Worst: 0.05
+INFO 02:13:51: Grabbed object!
+INFO 02:13:51: Gen 85 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:51: Grabbed object!
+INFO 02:13:52: Grabbed object!
+INFO 02:13:52: Gen 86 Best: 2.39, Median: 1.71, Worst: 0.05
+INFO 02:13:52: Grabbed object!
+INFO 02:13:52: Grabbed object!
+INFO 02:13:52: Gen 87 Best: 2.39, Median: 1.71, Worst: 0.05
+INFO 02:13:52: Grabbed object!
+INFO 02:13:52: Grabbed object!
+INFO 02:13:53: Grabbed object!
+INFO 02:13:53: Gen 88 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:53: Grabbed object!
+INFO 02:13:53: Grabbed object!
+INFO 02:13:53: Grabbed object!
+INFO 02:13:53: Gen 89 Best: 2.39, Median: 1.71, Worst: 0.04
+INFO 02:13:53: Grabbed object!
+INFO 02:13:53: Grabbed object!
+INFO 02:13:53: Grabbed object!
+INFO 02:13:54: Gen 90 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:54: Grabbed object!
+INFO 02:13:54: Grabbed object!
+INFO 02:13:54: Grabbed object!
+INFO 02:13:54: Gen 91 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:54: Grabbed object!
+INFO 02:13:55: Grabbed object!
+INFO 02:13:55: Grabbed object!
+INFO 02:13:55: Gen 92 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:55: Grabbed object!
+INFO 02:13:55: Grabbed object!
+INFO 02:13:55: Grabbed object!
+INFO 02:13:55: Gen 93 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:56: Grabbed object!
+INFO 02:13:56: Grabbed object!
+INFO 02:13:56: Grabbed object!
+INFO 02:13:56: Gen 94 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:56: Grabbed object!
+INFO 02:13:56: Grabbed object!
+INFO 02:13:56: Grabbed object!
+INFO 02:13:57: Gen 95 Best: 2.39, Median: 1.71, Worst: 0.01
+INFO 02:13:57: Grabbed object!
+INFO 02:13:57: Grabbed object!
+INFO 02:13:57: Grabbed object!
+INFO 02:13:57: Gen 96 Best: 2.39, Median: 1.71, Worst: 0.00
+INFO 02:13:57: Grabbed object!
+INFO 02:13:57: Render Thread Complete
+INFO 02:13:57: Simulation Thread Complete

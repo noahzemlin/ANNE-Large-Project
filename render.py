@@ -15,7 +15,7 @@ class RenderThread(RaisingThread):
     
     def run_w_exceptions(self):
         while self.running:
-            self.win.timeout(1000//20) # 20 FPS
+            self.win.timeout(1000//60) # 60 FPS
 
             key = self.win.getch()
 
