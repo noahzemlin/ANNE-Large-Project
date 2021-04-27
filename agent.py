@@ -1,3 +1,4 @@
+import logging
 from structs import AgentInfo
 import numpy as np
 

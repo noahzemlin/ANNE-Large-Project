@@ -14,4 +14,6 @@ for i in range(world.width // 2):
 
 world[2, world.height // 3] = CellType.OBJECT
 
+world[2, world.height // 3 * 2] = CellType.RETURN
+
 world.to_file("basic.wrld")

@@ -1,3 +1,4 @@
+from numpy.core.fromnumeric import trace
 from agent import Agent
 import traceback
 import signal
@@ -5,6 +6,8 @@ from simulator import SimulationThread
 import curses
 from world import World
 from render import RenderThread
+import logging
+import sys
 
 sim_thread = render_thread = sc = None
 
@@ -44,26 +47,36 @@ def signal_handler(sig, frame):
 def main():
     global sim_thread, render_thread, sc
 
+    logging.basicConfig(filename='log.log', filemode='w', level=logging.DEBUG, format='%(levelname)s %(asctime)s: %(message)s', datefmt='%H:%M:%S')
+
+    logging.info("Loading World")
     world = World()
     world.from_file("basic.wrld")
+
+    logging.info("Making Window")
     sc, window = create_window(world.width, world.height)
 
-    agent1 = Agent(4, [4, 4], 4)
+    logging.info("Making Agents")
+    agent1 = Agent(8 * 3 + 1, [32, 32], 8 * 2 + 1)
 
     world.put_agent(agent1, 2, world.height//3 * 2)
 
+    logging.info("Creating Threads")
     sim_thread = SimulationThread(world)
     render_thread = RenderThread(window, world)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGSEGV, signal_handler)
 
+    logging.info("Starting Threads")
     render_thread.start()
     sim_thread.start()
 
     render_thread.join()
+    logging.info("Render Thread Complete")
     sim_thread.running = False
     sim_thread.join()
+    logging.info("Simulation Thread Complete")
 
 if __name__ == '__main__':
     try:

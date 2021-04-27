@@ -7,6 +7,7 @@ class CellType(Enum):
     ROBOT_W_OBJECT = ('R', 1)
     OBJECT = ('O', 2)
     OBSTACLE = ('#', 0)
+    RETURN = ('X', 1)
 
     def __init__(self, char, color):
         self.char = char
@@ -23,6 +24,6 @@ class CellType(Enum):
 
 class AgentInfo():
     def __init__(self, x=0, y=0, holding=None):
-        self.x = x
-        self.y = y
+        self.x:int = x
+        self.y:int = y
         self.holding = holding
