@@ -22,7 +22,7 @@ def create_window(width, height):
     curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
 
     # Create window
-    window = curses.newwin(height, width, 0, 0)
+    window = curses.newwin(height+1, width, 0, 0)
     window.keypad(1)
     curses.curs_set(0)
 
@@ -58,7 +58,7 @@ def main():
 
     logging.info("Creating Threads")
     sim_thread = SimulationThread(world)
-    render_thread = RenderThread(window, world)
+    render_thread = RenderThread(window, sim_thread)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGSEGV, signal_handler)

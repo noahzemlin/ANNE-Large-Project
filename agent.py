@@ -1,3 +1,4 @@
+import copy
 import logging
 from structs import AgentInfo
 import numpy as np
@@ -12,28 +13,32 @@ class Agent:
                     np.random.normal(0, 0.4, (inputs, hidden_layers[i]))
                     ))
 
-            if i > 0:
+            if i > 0 and i != len(hidden_layers) - 1:
                 self.network.append(np.array(
                     np.random.normal(0, 0.4, (hidden_layers[i-1], hidden_layers[i]))
-                    ))
-
-            if i == len(hidden_layers) - 1:
-                self.network.append(np.array(
-                    np.random.normal(0, 0.4, (hidden_layers[i], output))
                     ))
 
         if len(hidden_layers) == 0:
             self.network.append(np.array(
                     np.random.normal(0, 0.4, (inputs, output))
                     ))
+        else:
+            self.network.append(np.array(
+                    np.random.normal(0, 0.4, (inputs + hidden_layers[len(hidden_layers) - 1], output))
+                    ))
 
     def predict(self, input: np.ndarray) -> np.ndarray:
 
-        for layer in self.network:
-            input = 1 / (1 + np.exp(-np.matmul(input, layer))) # Multiply each layer with sigmoid activation
+        originput = copy.deepcopy(input)
+        for i, layer in enumerate(self.network):
+            if i != len(self.network) - 1:
+                input = 1 / (1 + np.exp(-np.matmul(input, layer))) # Multiply each layer with sigmoid activation
+            else:
+                # Skip connect from first layer
+                input = np.matmul(np.concatenate((input, originput)), layer)
 
-        # Softmax (yes its applied after a sigmoid but w/e)
-        e = np.exp(input)
-        input = e / e.sum()
+                # Softmax
+                e = np.exp(input)
+                input = e / e.sum()
 
         return input

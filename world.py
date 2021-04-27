@@ -9,8 +9,6 @@ import pickle
 import copy
 
 class Node():
-    """A node class for A* Pathfinding"""
-
     def __init__(self, parent=None, position=None):
         self.parent = parent
         self.position = position
@@ -33,6 +31,7 @@ class World:
         self.map = copy.deepcopy(self.stored_map)
         self.index_to_dir = {}
         self.score = 0
+        self.moves = set()
 
         i = 0
         for x in range(-1, 2):
@@ -67,10 +66,22 @@ class World:
             new_pos = (info.x + int(delta[0]), info.y + int(delta[1]))
 
             if self.in_map(new_pos) and self[new_pos] == CellType.FREE:
+                if new_pos not in self.moves:
+                    if info.holding:
+                        goal_pos = (3, 12)
+                    else:
+                        goal_pos = (3, 6)
+                        self.score += 0.0001
+
+                    if delta == self.goal_to_dir[((info.x, info.y), goal_pos)]:
+                        self.score += 0.05
+                    else:
+                        self.score -= 0.04
+                    self.moves.add(new_pos)
+
                 self.agents[agent].x = new_pos[0]
                 self.agents[agent].y = new_pos[1]
-
-                self.score += 0.001
+                
                 self.didMove[agent] = True
 
                 # If agent is near RETURN while holding, unhold and increment score!
@@ -79,12 +90,14 @@ class World:
                         if x != 0 or y != 0:
                             point = (x + new_pos[0], y + new_pos[1])
                             if info.holding and self.in_map(point) and self[point] == CellType.RETURN:
-                                self.score += 5
-                                logging.info("Returned object!")
+                                self.score += 20
+                                # logging.info("Returned object!")
+                                self.moves = set()
                                 self.agents[agent].holding = False
                             if not info.holding and self.in_map(point) and self[point] == CellType.OBJECT:
-                                self.score += 1
-                                logging.info("Grabbed object!")
+                                self.score += 5
+                                # logging.info("Grabbed object!")
+                                self.moves = set()
                                 self.agents[agent].holding = True
                                 self[point] = CellType.FREE
                 return True
@@ -108,6 +121,7 @@ class World:
         self.map = copy.deepcopy(self.stored_map)
         self.agents: dict[Agent, AgentInfo] = {}
         self.score = 0
+        self.moves = set()
 
     # THIS IS SO SLOW PLEASE FIX IT
     # THIS IS LITERALLY O(N^2) BREATH FIRST SEARCH AHHHHHH
