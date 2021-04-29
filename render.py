@@ -23,54 +23,67 @@ class RenderThread(RaisingThread):
         while self.running:
             # Display best agent
             agent = copy.deepcopy(self.sim.best_agent)
-            self.world.reset()
-            self.world.put_agent(agent, 2, self.world.height//3 * 2)
-            gen = self.sim.gen
-            score = self.sim.best_fitness
-            for _ in range(80):
-                self.win.timeout(1000//20) # 5 FPS
 
-                if agent == None:
+            self.world.reset()
+
+            agent_clone = copy.deepcopy(agent)
+
+            self.world.put_agent(agent, 4, 12)
+            self.world.put_agent(agent_clone, 2, 12)
+
+            self.world.put_object((random.randint(3, 50), random.randint(3, 8)))
+
+            agents = [agent, agent_clone]
+
+            # Add 4 more objects
+            for _ in range(6):
+                while not self.world.put_object((random.randint(3, 35), random.randint(3, 8))):
+                    # Keep trying to place second object until it places
                     continue
 
-                key = self.win.getch()
+            gen = self.sim.gen
+            score = self.sim.best_fitness
+            for _ in range(160):
+                for agent in agents:
+                    self.win.timeout(1000//40) # 40 FPS
 
-                input_vector = self.world.agent_to_vector(agent)
+                    if agent == None:
+                        continue
 
-                action_vector = agent.predict(input_vector)
-                action_index = np.argmax(action_vector)
+                    key = self.win.getch()
 
-                # Reward going towards goal
-                if action_index == np.argmax(input_vector[16:25]) + 1:
-                    self.world.score += 0.05
+                    input_vector = self.world.agent_to_vector(agent)
 
-                self.world.perform_action(agent, action_index)
+                    action_vector = agent.predict(input_vector)
+                    action_index = np.argmax(action_vector)
 
-                # Quit
-                if key == ord('q'):
-                    self.running = False
-                    break
-                
-                # Display world
-                for x in range(self.world.width):
-                    for y in range(self.world.height):
-                        if not (x == self.world.width-1 and y == self.world.height-1):
-                            cell = self.world[x,y]
-                            self.win.addch(y, x, cell.ch(), curses.color_pair(cell.clr()))
+                    self.world.perform_action(agent, action_index)
 
-                # Render robots
-                for agent in self.world.agents:
-                    info = self.world.agent_info(agent)
-                    if info.holding is None:
-                        ct = CellType.ROBOT
-                        self.win.addch(info.y, info.x, ct.ch(), curses.color_pair(ct.clr()))
-                    else:
-                        ct = CellType.ROBOT_W_OBJECT
-                        self.win.addch(info.y, info.x, ct.ch(), curses.color_pair(ct.clr()))
+                    # Quit
+                    if key == ord('q'):
+                        self.running = False
+                        break
+                    
+                    # Display world
+                    for x in range(self.world.width):
+                        for y in range(self.world.height):
+                            if not (x == self.world.width-1 and y == self.world.height-1):
+                                cell = self.world[x,y]
+                                self.win.addch(y, x, cell.ch(), curses.color_pair(cell.clr()))
 
-                self.win.addstr(self.world.height, 0, f"Best from Gen {gen}, Fitness: {score:03.2f}")
+                    # Render robots
+                    for agent in agents:
+                        info = self.world.agent_info(agent)
+                        if info.holding is None or info.holding == False:
+                            ct = CellType.ROBOT
+                            self.win.addch(info.y, info.x, ct.ch(), curses.color_pair(ct.clr()))
+                        else:
+                            ct = CellType.ROBOT_W_OBJECT
+                            self.win.addch(info.y, info.x, ct.ch(), curses.color_pair(ct.clr()))
 
-                self.win.refresh()
+                    self.win.addstr(self.world.height, 0, f"Best from Gen {gen}, Fitness: {score:03.2f}")
+
+                    self.win.refresh()
 
 
         curses.nocbreak()

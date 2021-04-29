@@ -1,5 +1,6 @@
 import logging
 import time
+import math
 from typing import Any
 import numpy as np
 from agent import Agent
@@ -31,7 +32,9 @@ class World:
         self.map = copy.deepcopy(self.stored_map)
         self.index_to_dir = {}
         self.score = 0
-        self.moves = set()
+        self.objects = []
+        self.agent_to_target = {}
+        self.agent_to_id = {}
 
         i = 0
         for x in range(-1, 2):
@@ -42,18 +45,48 @@ class World:
         
         # Dictionary of agents and their position (x,y) and what they are holding (None if not holding)
         self.agents: dict[Agent, AgentInfo] = {}
-        self.didMove: dict[Agent, bool] = {}
-        self.lastDir: dict[Agent, Any] = {}
         
         # (cur_pos, goal_pos) -> (dir)
         self.goal_to_dir: dict[Any, Any] = {}
+
+    def add_score(self, agent, value):
+        self.score += value
+
+    def attempt_move_agent(self, agent: Agent, info: AgentInfo, delta):
+        # Move
+        new_pos = (info.x + int(delta[0]), info.y + int(delta[1]))
+
+        if self.in_map(new_pos) and self[new_pos] == CellType.FREE:
+            self.agents[agent].x = new_pos[0]
+            self.agents[agent].y = new_pos[1]
+            
+            # If agent is near RETURN while holding, unhold and increment score!
+            for x in range(-1, 2):
+                for y in range(-1, 2):
+                    if x != 0 or y != 0:
+                        point = (x + new_pos[0], y + new_pos[1])
+                        if info.holding and self.in_map(point) and self[point] == CellType.RETURN:
+                            self.add_score(agent, 20)
+                            # logging.info("Returned object!")
+                            self.agents[agent].holding = False
+                        if not info.holding and self.in_map(point) and self[point] == CellType.OBJECT:
+                            self.add_score(agent, 5)
+                            # logging.info("Grabbed object!")
+                            self.agents[agent].holding = True
+
+                            self.target_object = None
+                            self.objects.remove(point)
+                            self[point] = CellType.FREE
+            return True
+
+        return False
 
     # Attempt to perform an action with a specified agent
     # Returns True on sucess, False otherwise
     # Actions:
     #   0 = No action
     #   1 thru 8 = Move (tl, tc, tp, cl, cc, cr, bl, bc, br)
-    #   9 thru 16 = Pickup/Pass (^^^)
+    #   9 = Move to goal
     def perform_action(self, agent: Agent, action_index = 0):
         info = self.agent_info(agent)
 
@@ -61,58 +94,78 @@ class World:
             # No Action
             return True
         elif 1 <= action_index <= 8:
-            # Move
+            # Let them move how they want if they want
             delta = self.index_to_dir[action_index - 1]
-            new_pos = (info.x + int(delta[0]), info.y + int(delta[1]))
 
-            if self.in_map(new_pos) and self[new_pos] == CellType.FREE:
-                if new_pos not in self.moves:
-                    if info.holding:
-                        goal_pos = (3, 12)
-                    else:
-                        goal_pos = (3, 6)
-                        self.score += 0.0001
+            return self.attempt_move_agent(agent, info, delta)
+        elif action_index == 9:
+            # Decide goal
+            if info.holding:
+                goal_pos = (3, 12)
+            elif self.agent_to_target[agent] is not None and self[self.agent_to_target[agent]] == CellType.OBJECT:
+                goal_pos = self.agent_to_target[agent]
+            else:
+                # Find nearest object and set as target
+                smallest_distance = 100000
+                self.agent_to_target[agent] = None
+                for object in self.objects:
+                    dist_to = self.dist(object, (info.x, info.y))
+                    if dist_to < smallest_distance:
+                        smallest_distance = dist_to
+                        self.agent_to_target[agent] = object
 
-                    if delta == self.goal_to_dir[((info.x, info.y), goal_pos)]:
-                        self.score += 0.05
-                    else:
-                        self.score -= 0.04
-                    self.moves.add(new_pos)
+                # logging.info(f"Found target: {self.target_object}")
 
-                self.agents[agent].x = new_pos[0]
-                self.agents[agent].y = new_pos[1]
-                
-                self.didMove[agent] = True
-
-                # If agent is near RETURN while holding, unhold and increment score!
-                for x in range(-1, 2):
-                    for y in range(-1, 2):
-                        if x != 0 or y != 0:
-                            point = (x + new_pos[0], y + new_pos[1])
-                            if info.holding and self.in_map(point) and self[point] == CellType.RETURN:
-                                self.score += 20
-                                # logging.info("Returned object!")
-                                self.moves = set()
-                                self.agents[agent].holding = False
-                            if not info.holding and self.in_map(point) and self[point] == CellType.OBJECT:
-                                self.score += 5
-                                # logging.info("Grabbed object!")
-                                self.moves = set()
-                                self.agents[agent].holding = True
-                                self[point] = CellType.FREE
+                goal_pos = self.agent_to_target[agent]
+            
+            if goal_pos == None:
+                # Nowhere else to go!
                 return True
 
-            return False
-        elif 9 <= action_index <= 16:
-            # Pickup/pass
-            return True
+            # Find dir to goal
+            if ((info.x, info.y), goal_pos) in self.goal_to_dir:
+                dir = self.goal_to_dir[((info.x, info.y), goal_pos)]
+            else:
+                path = self.astar((info.x, info.y), goal_pos = goal_pos)
+            
+                if path is not None and len(path) > 1:
+                    dir = (path[1][0] - info.x, path[1][1] - info.y)
+                else:
+                    logging.info(f"No path to: {self.target_object} from {(info.x, info.y)}")
+                    dir = (0, 0)
+
+                self.goal_to_dir[((info.x, info.y), goal_pos)] = dir
+
+            return self.attempt_move_agent(agent, info, dir)
+        elif action_index == 10:
+            # Pass
+
+            if not info.holding:
+                return False
+
+            for pos_agent in self.agents:
+                if not pos_agent == agent:
+                    pos_info = self.agents[agent]
+                    if not pos_info.holding and self.dist((info.x, info.y), (pos_info.x, pos_info.y)) <= 1.5:
+                        info.holding = False
+                        pos_info.holding = True
 
         return False
 
     def put_agent(self, agent: Agent, x: int, y: int) -> None:
         self.agents[agent] = AgentInfo(x, y, None)
-        self.didMove[agent] = True
-        self.lastDir[agent] = (0, 0)
+
+        self.agent_to_id[agent] = len(self.agent_to_id)
+        self.agent_to_target[agent] = None
+
+    def put_object(self, pos):
+        if self[pos] == CellType.FREE:
+            self[pos] = CellType.OBJECT
+        else:
+            return False
+        
+        self.objects.append(pos)
+        return True
 
     def agent_info(self, agent: Agent) -> AgentInfo:
         return self.agents[agent]
@@ -122,38 +175,12 @@ class World:
         self.agents: dict[Agent, AgentInfo] = {}
         self.score = 0
         self.moves = set()
-
-    # THIS IS SO SLOW PLEASE FIX IT
-    # THIS IS LITERALLY O(N^2) BREATH FIRST SEARCH AHHHHHH
-    def get_dir_to_nearest_goal(self, start, goal=CellType.OBJECT):
-        queue = []
-        queue.append([start])
-
-        visited = set()
-
-        while queue:
-            path = queue.pop(0)
-            node = path[-1]
-
-            if self[node] == goal:
-                return path
-            
-            for x in range(-1, 2):
-                for y in range(-1, 2):
-                    if x != 0 or y != 0:
-                        point = (x + node[0], y + node[1])
-                        if point not in visited and self.in_map(point) and (self[point] == CellType.FREE or self[point] == goal):
-                            visited.add(point)
-                            new_path = list(path)
-                            new_path.append(point)
-                            queue.append(new_path)
-        
-        return None
+        self.objects = []
+        self.agent_to_target = {}
+        self.agent_to_id = {}
 
     def astar(self, start, goal_pos, goal=CellType.OBJECT):
         """Returns a list of tuples as a path from the given start to the given end in the given maze"""
-
-
 
         # Create start and end node
         start_node = Node(None, start)
@@ -201,7 +228,7 @@ class World:
                     continue
 
                 # Make sure walkable terrain
-                if not (self[node_position] == CellType.FREE or self[node_position] == goal):
+                if self[node_position] == CellType.OBSTACLE:
                     continue
 
                 # Create new node
@@ -237,62 +264,25 @@ class World:
         agent_info = self.agent_info(agent)
         vector = []
 
-        # Free spaces
-        for x in range(-1, 2):
-            for y in range(-1, 2):
-                if x != 0 or y != 0:
-                    look_at = (agent_info.x + x, agent_info.y + y)
-                    if self.in_map(look_at):
-                        vector.append(1 if self[look_at] == CellType.FREE else 0)
-                    else:
-                        vector.append(0)
+        # Robot nearby
+        robot_in_range = False
+        for pos_agent in self.agents:
+            if not pos_agent == agent:
+                pos_info = self.agents[agent]
+                if not pos_info.holding and self.dist((agent_info.x, agent_info.y), (pos_info.x, pos_info.y)) <= 1.5:
+                    robot_in_range = True
 
-        # Robot spaces
-        for x in range(-1, 2):
-            for y in range(-1, 2):
-                if x != 0 or y != 0:
-                    look_at = (agent_info.x + x, agent_info.y + y)
-                    if self.in_map(look_at):
-                        vector.append(1 if self[look_at] == CellType.ROBOT else 0)
-                    else:
-                        vector.append(0)
+        vector.append(1 if robot_in_range else 0)
 
-        # Best path to nearest object if not holding, return point if holding
-        if agent_info.holding:
-            goal_pos = (3, 12)
-        else:
-            goal_pos = (3, 6)
-
-        if self.didMove[agent]:
-            if ((agent_info.x, agent_info.y), goal_pos) in self.goal_to_dir:
-                dir = self.goal_to_dir[((agent_info.x, agent_info.y), goal_pos)]
-            else:
-                path = self.astar((agent_info.x, agent_info.y), goal_pos = goal_pos, goal=CellType.OBJECT if agent_info.holding is None else CellType.RETURN)
-            
-                if path is not None:
-                    dir = (path[1][0] - agent_info.x, path[1][1] - agent_info.y)
-                else:
-                    dir = (0, 0)
-
-                self.lastDir[agent] = dir
-                self.goal_to_dir[((agent_info.x, agent_info.y), goal_pos)] = dir
-                self.didMove[agent] = False
-        else:
-            dir = self.lastDir[agent]
-
-        for x in range(-1, 2):
-            for y in range(-1, 2):
-                if x != 0 or y != 0:
-                    look_at = (x, y)
-                    if look_at == dir:
-                        vector.append(1)
-                    else:
-                        vector.append(0)
+        vector.append(self.agent_to_id[agent])
 
         # Is Holding
         vector.append(1 if agent_info.holding is not None else -1)
 
         return np.array(vector)
+
+    def dist(self, pos1, pos2):
+        return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
 
     def from_file(self, filename: str):
         with open(filename, "rb") as f:

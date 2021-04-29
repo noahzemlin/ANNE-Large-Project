@@ -21,12 +21,12 @@ class SimulationThread(RaisingThread):
         self.gen = 0
 
     def make_agent(self):
-        return Agent(8 * 3 + 1, [6], 8 * 2 + 1)
+        return Agent(3, [6], 11)
 
     def run_w_exceptions(self):
         # Initalize population
         logging.info("Making Agents")
-        self.population = [self.make_agent() for _ in range(150)]
+        self.population = [self.make_agent() for _ in range(120)]
         self.scores = {agent: 0 for agent in self.population}
 
         logging.info(f"Number of weights: {sum([lyr.shape[0] * lyr.shape[1] for lyr in self.population[0].network])}")
@@ -37,15 +37,30 @@ class SimulationThread(RaisingThread):
                 if not self.running:
                     return
                 self.world.reset()
-                self.world.put_agent(agent, 2, self.world.height//3 * 2)
 
-                for _ in range(80):
-                    input_vector = self.world.agent_to_vector(agent)
+                agent_clone = copy.deepcopy(agent)
 
-                    action_vector = agent.predict(input_vector)
-                    action_index = np.argmax(action_vector)
+                self.world.put_agent(agent, 4, 12)
+                self.world.put_agent(agent_clone, 2, 12)
 
-                    self.world.perform_action(agent, action_index)
+                self.world.put_object((random.randint(3, 50), random.randint(3, 8)))
+
+                agents = [agent, agent_clone]
+
+                # Add 4 more objects
+                for _ in range(6):
+                    while not self.world.put_object((random.randint(3, 35), random.randint(3, 8))):
+                        # Keep trying to place second object until it places
+                        continue
+
+                for _ in range(160):
+                    for agent_inst in agents:
+                        input_vector = self.world.agent_to_vector(agent_inst)
+
+                        action_vector = agent_inst.predict(input_vector)
+                        action_index = np.argmax(action_vector)
+
+                        self.world.perform_action(agent_inst, action_index)
 
                 self.scores[agent] = self.world.score
 

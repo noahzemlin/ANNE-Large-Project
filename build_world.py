@@ -1,7 +1,7 @@
 from structs import CellType
 from world import World
 
-world = World(40, 20)
+world = World(60, 20)
 
 # Walls
 for x in range(world.width):
@@ -12,7 +12,7 @@ for x in range(world.width):
 for i in range(world.width // 2):
     world[i, world.height // 2] = CellType.OBSTACLE
 
-world[2, world.height // 3] = CellType.OBJECT
+# world[2, world.height // 3] = CellType.OBJECT
 
 world[2, world.height // 3 * 2] = CellType.RETURN
 
