@@ -1,11 +1,10 @@
 import logging
-import time
+import random
 import math
 from typing import Any
 import numpy as np
 from agent import Agent
 from structs import AgentInfo, CellType
-import curses
 import pickle
 import copy
 
@@ -32,9 +31,14 @@ class World:
         self.map = copy.deepcopy(self.stored_map)
         self.index_to_dir = {}
         self.score = 0
+        self.move_num = 1
+        self.move_num_last_pass = 1
+        self.num_passes = 0
         self.objects = []
+        
         self.agent_to_target = {}
         self.agent_to_id = {}
+        self.agent_last_scored = {}
 
         i = 0
         for x in range(-1, 2):
@@ -56,6 +60,22 @@ class World:
         # Move
         new_pos = (info.x + int(delta[0]), info.y + int(delta[1]))
 
+        # Is another robot on that tile?
+        for agent_iter in self.agents:
+            if agent_iter == agent:
+                continue
+
+            ag_info = self.agents[agent_iter]
+            if self.dist((ag_info.x, ag_info.y), new_pos) <= 1.5:
+                # Uh oh, too close! Randomly move!
+                delta2 = (delta[0], delta[1])
+
+                while delta2 == delta:
+                    delta2 = (random.randint(-1, 1), random.randint(-1, 1))
+                
+                new_pos = (info.x + int(delta2[0]), info.y + int(delta2[1]))
+                break
+
         if self.in_map(new_pos) and self[new_pos] == CellType.FREE:
             self.agents[agent].x = new_pos[0]
             self.agents[agent].y = new_pos[1]
@@ -66,15 +86,20 @@ class World:
                     if x != 0 or y != 0:
                         point = (x + new_pos[0], y + new_pos[1])
                         if info.holding and self.in_map(point) and self[point] == CellType.RETURN:
-                            self.add_score(agent, 20)
+                            time_since_last_score = self.move_num - self.agent_last_scored[agent]
+                            self.add_score(agent, max(20 - time_since_last_score * 0.2, 1))
+                            self.agent_last_scored[agent] = self.move_num
+
                             # logging.info("Returned object!")
                             self.agents[agent].holding = False
                         if not info.holding and self.in_map(point) and self[point] == CellType.OBJECT:
-                            self.add_score(agent, 5)
+                            self.add_score(agent, 1)
+
                             # logging.info("Grabbed object!")
                             self.agents[agent].holding = True
 
-                            self.target_object = None
+                            self.agent_to_target[agent] = None
+
                             self.objects.remove(point)
                             self[point] = CellType.FREE
             return True
@@ -93,18 +118,21 @@ class World:
         if action_index == 0:
             # No Action
             return True
-        elif 1 <= action_index <= 8:
-            # Let them move how they want if they want
-            delta = self.index_to_dir[action_index - 1]
+        # elif 1 <= action_index <= 8:
+        #     # Let them move how they want if they want
+        #     delta = self.index_to_dir[action_index - 1]
 
-            return self.attempt_move_agent(agent, info, delta)
-        elif action_index == 9:
+        #     return self.attempt_move_agent(agent, info, delta)
+        elif action_index == 1:
             # Decide goal
             if info.holding:
-                goal_pos = (3, 12)
+                goal_pos = (3, 11)
             elif self.agent_to_target[agent] is not None and self[self.agent_to_target[agent]] == CellType.OBJECT:
+                # Have a target and its still an object
                 goal_pos = self.agent_to_target[agent]
             else:
+                # Target doesn't exist
+
                 # Find nearest object and set as target
                 smallest_distance = 100000
                 self.agent_to_target[agent] = None
@@ -131,24 +159,31 @@ class World:
                 if path is not None and len(path) > 1:
                     dir = (path[1][0] - info.x, path[1][1] - info.y)
                 else:
-                    logging.info(f"No path to: {self.target_object} from {(info.x, info.y)}")
+                    logging.info(f"No path to: {goal_pos} from {(info.x, info.y)}")
                     dir = (0, 0)
 
                 self.goal_to_dir[((info.x, info.y), goal_pos)] = dir
 
             return self.attempt_move_agent(agent, info, dir)
-        elif action_index == 10:
+        elif action_index == 2:
             # Pass
 
-            if not info.holding:
+            if not info.holding or self.move_num - self.move_num_last_pass <= 4:
                 return False
 
             for pos_agent in self.agents:
                 if not pos_agent == agent:
-                    pos_info = self.agents[agent]
-                    if not pos_info.holding and self.dist((info.x, info.y), (pos_info.x, pos_info.y)) <= 1.5:
-                        info.holding = False
-                        pos_info.holding = True
+                    pos_info = self.agents[pos_agent]
+                    if not pos_info.holding and self.dist((info.x, info.y), (pos_info.x, pos_info.y)) <= 4:
+                        self.agents[agent].holding = False
+                        self.agents[pos_agent].holding = True
+
+                        self.agent_to_target[agent] = None
+                        self.agent_to_target[pos_agent] = None
+
+                        self.move_num_last_pass = self.move_num
+
+                        self.num_passes += 1
 
         return False
 
@@ -157,6 +192,7 @@ class World:
 
         self.agent_to_id[agent] = len(self.agent_to_id)
         self.agent_to_target[agent] = None
+        self.agent_last_scored[agent] = 1
 
     def put_object(self, pos):
         if self[pos] == CellType.FREE:
@@ -172,12 +208,17 @@ class World:
 
     def reset(self):
         self.map = copy.deepcopy(self.stored_map)
+        self.move_num = 1
         self.agents: dict[Agent, AgentInfo] = {}
         self.score = 0
+        self.num_passes = 0
+        self.move_num_last_score = 1
+        self.move_num_last_pass = 1
         self.moves = set()
         self.objects = []
         self.agent_to_target = {}
         self.agent_to_id = {}
+        self.agent_last_scored = {}
 
     def astar(self, start, goal_pos, goal=CellType.OBJECT):
         """Returns a list of tuples as a path from the given start to the given end in the given maze"""
@@ -265,19 +306,21 @@ class World:
         vector = []
 
         # Robot nearby
+        robot_ready_to_grab = False
         robot_in_range = False
         for pos_agent in self.agents:
             if not pos_agent == agent:
-                pos_info = self.agents[agent]
-                if not pos_info.holding and self.dist((agent_info.x, agent_info.y), (pos_info.x, pos_info.y)) <= 1.5:
+                pos_info = self.agents[pos_agent]
+                if not pos_info.holding and self.dist((agent_info.x, agent_info.y), (pos_info.x, pos_info.y)) <= 4:
+                    robot_ready_to_grab = True
+                if self.dist((agent_info.x, agent_info.y), (pos_info.x, pos_info.y)) <= 2:
                     robot_in_range = True
 
+        vector.append(1 if robot_ready_to_grab else 0)
         vector.append(1 if robot_in_range else 0)
 
-        vector.append(self.agent_to_id[agent])
-
         # Is Holding
-        vector.append(1 if agent_info.holding is not None else -1)
+        vector.append(1 if agent_info.holding else 0)
 
         return np.array(vector)
 

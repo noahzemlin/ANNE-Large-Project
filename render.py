@@ -31,19 +31,20 @@ class RenderThread(RaisingThread):
             self.world.put_agent(agent, 4, 12)
             self.world.put_agent(agent_clone, 2, 12)
 
-            self.world.put_object((random.randint(3, 50), random.randint(3, 8)))
-
             agents = [agent, agent_clone]
 
-            # Add 4 more objects
-            for _ in range(6):
-                while not self.world.put_object((random.randint(3, 35), random.randint(3, 8))):
-                    # Keep trying to place second object until it places
+            # Add 12 objects
+            for _ in range(12):
+                while not self.world.put_object((random.randint(3, 50), random.randint(3, 8))):
+                    # Keep trying to place another object until it places
                     continue
 
             gen = self.sim.gen
             score = self.sim.best_fitness
-            for _ in range(160):
+            for _ in range(200):
+                self.world.move_num += 1
+                if not self.running:
+                    break
                 for agent in agents:
                     self.win.timeout(1000//40) # 40 FPS
 

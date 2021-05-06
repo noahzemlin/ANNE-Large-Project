@@ -8,8 +8,10 @@ from world import World
 from render import RenderThread
 import logging
 import sys
+import argparse
 
 sim_thread = render_thread = sc = None
+display_graphics = False
 
 def create_window(width, height):
     # Init screen
@@ -35,41 +37,61 @@ def signal_handler(sig, frame):
     if render_thread is not None:
         render_thread.running = False
 
-    curses.nocbreak()
+    if display_graphics:
+        curses.nocbreak()
 
-    if sc is not None:
-        sc.keypad(False)
+        if sc is not None:
+            sc.keypad(False)
 
-    curses.echo()
+        curses.echo()
 
-    curses.endwin()
+        curses.endwin()
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Evolution epic')
+    parser.add_argument('-display_graphics', action='store_true', default=False)
+    parser.add_argument('-exp_index', type=int, default=1)
+
+    return parser.parse_args()
 
 def main():
-    global sim_thread, render_thread, sc
+    global sim_thread, render_thread, sc, display_graphics
 
-    logging.basicConfig(filename='log.log', filemode='w', level=logging.DEBUG, format='%(levelname)s %(asctime)s: %(message)s', datefmt='%H:%M:%S')
+    args = parse_args()
+
+    display_graphics = args.display_graphics
+
+    logging.basicConfig(filename=f'log_{args.exp_index}.log', filemode='w', level=logging.DEBUG, format='%(levelname)s %(asctime)s: %(message)s', datefmt='%H:%M:%S')
 
     logging.info("Loading World")
     world = World()
     world.from_file("basic.wrld")
 
-    logging.info("Making Window")
-    sc, window = create_window(world.width, world.height)
+    if display_graphics:
+        logging.info("Making Window")
+        sc, window = create_window(world.width, world.height)
 
     logging.info("Creating Threads")
-    sim_thread = SimulationThread(world)
-    render_thread = RenderThread(window, sim_thread)
+    sim_thread = SimulationThread(world, exp=args.exp_index)
+
+    if display_graphics:
+        render_thread = RenderThread(window, sim_thread)
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGSEGV, signal_handler)
 
     logging.info("Starting Threads")
-    render_thread.start()
+
+    if display_graphics:
+        render_thread.start()
+
     sim_thread.start()
 
-    render_thread.join()
-    logging.info("Render Thread Complete")
-    sim_thread.running = False
+    if display_graphics:
+        render_thread.join()
+        logging.info("Render Thread Complete")
+        sim_thread.running = False
+
     sim_thread.join()
     logging.info("Simulation Thread Complete")
 
